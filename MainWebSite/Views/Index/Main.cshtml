@@ -1,0 +1,125 @@
+﻿@model MainWebSite.Models.MainModel
+
+@{
+    ViewData["Title"] = "Main";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="container">
+
+    <div class="row">
+        <div class="col"><h1>Hello, @Model.user.firstname:)</h1></div>
+    </div>
+
+    <div class="row">
+        <div class="col"> <img src="@Model.user.picture_small"> </div>
+        <div class="col">
+          <!--  <button class="btn btn-primary btn-lg" type="submit" onclick="UpdateArtists(this,'@Model.user.id')">Обновить список артистов</button> -->
+
+        </div>
+        <div class="col"><button class="btn btn-info btn-lg" type="submit" onclick="LoadNewAlbums(this,'@Model.user.id')">Получить новые альбомы</button></div>
+        <!--- <div class="col"><button class="btn btn-info btn-lg" type="submit" onclick="GetHistory(this,'@Model.user.id','@Model.access_token')">История</button></div> -->
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <br>
+        </div>
+    </div>
+
+
+    <div id="albums" >
+    </div>
+
+            <div id="history_app">
+
+
+
+                <div class="row">
+                
+                    <div class="col">
+                        <button class="btn btn-info btn-lg" v-show="prevVisible" v-on:click="buttonClick(-1)">Назад</button>
+                    </div>
+
+                <div class="col"></div>
+                    <button class="btn btn-info btn-lg" v-on:click="buttonClick(1)">История</button>
+                </div>
+                
+
+                <div class="row">
+                    <div class="col">
+                        <br />
+                    </div>
+                </div>
+
+                
+                    <template v-for="item in items">
+                        <div class="row">
+                            <div class="col"><a v-bind:href="item.album.link"><img v-bind:src="item.album.cover_small" /></a></div>
+                            <div class="col"><a v-bind:href="item.artist.link">{{item.artist.name}}</a></div>
+                            <div class="col"><a v-bind:href="item.album.link">{{item.album.title}}</a></div>
+                            <div class="col"><a v-bind:href="item.link">{{item.title}}</a></div>
+                            <div class="col"></div>
+                        </div>
+                    </template>
+
+                
+
+
+            </div>
+
+           
+
+
+
+            <script src="~/lib/vue/vue.js"></script>
+            <script src="~/lib/axios/axios.min.js"></script>
+            <script>
+            var app = new Vue({
+            el: '#history_app',
+
+            data:
+            {
+                items: [],                
+                index: 0,
+                cnt: 0,
+                prevVisible:false
+            },
+
+            methods:
+            {
+                buttonClick: function (dir) {                   
+                    
+                    if (dir > 0)
+                        this.index += this.cnt
+                    else
+                        this.index-= this.cnt
+
+                    
+                    url=GetHistoryUrl('@Model.user.id','@Model.access_token',this.index)
+
+
+                    this.prevVisible = this.index > 0;    
+
+
+
+                    axios.get(url).then(response => {
+                        this.items = response.data.data                                                                        
+                        this.cnt = response.data.data.length
+                        
+                        
+                    });
+
+
+                }
+            }
+        });
+            </script>
+
+
+
+
+
+        </div>
